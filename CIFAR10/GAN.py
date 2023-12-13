@@ -5,50 +5,6 @@ from torch_geometric.nn import GCNConv, global_mean_pool
 from torch_geometric.data import Data, Batch
 import lightning.pytorch as pl
 
-# class GraphGenerator(nn.Module):
-#     def __init__(self, layers, node_count, condition_dim=10, batch_norm=True, temperature=1, threshold=0.02):
-#         super().__init__()
-#         self.node_count = node_count
-#         self.condition_dim = condition_dim
-#         self.temperature = temperature
-#         self.threshold = threshold
-#         self.fc_nodes = nn.Linear(layers[-1], layers[-1] * node_count)
-#         self.fc_adj = nn.Linear(layers[-1], node_count ** 2)
-#         self.fc_initial = nn.Linear(layers[0] + condition_dim, layers[1])
-        
-#         modules = [self.fc_initial]
-#         for in_features, out_features in zip(layers[1:], layers[2:]):
-#             modules.append(nn.Linear(in_features, out_features))
-#             if batch_norm:
-#                 modules.append(nn.BatchNorm1d(out_features))
-#             modules.append(nn.ReLU())
-
-#         self.network = nn.Sequential(*modules)
-
-#     def forward(self, z, labels):
-#         num_labels = len(labels)
-#         nsample_per_label = z.size(0) // num_labels
-#         labels_list = [torch.full((nsample_per_label,), label, dtype=torch.long) for label in labels]
-#         label = torch.cat(labels_list)
-#         label = label[torch.randperm(z.size(0))]
-#         condition = F.one_hot(label, num_classes=10).to(z.device)
-#         x = torch.cat([z, condition], dim=1)
-#         x = self.network(x)
-#         feature_size = self.fc_nodes.out_features // self.node_count
-#         nodes = torch.sigmoid(self.fc_nodes(x)).view(-1, feature_size)
-#         adj_logits = self.fc_adj(x).view(-1, self.node_count, self.node_count)
-#         adj_probabilities = F.gumbel_softmax(adj_logits, tau=self.temperature, dim=-1)
-#         adj = (adj_probabilities > self.threshold).float()
-
-#         edge_index = []
-#         for i in range(adj.size(0)):
-#             edges = (adj[i] > 0).nonzero(as_tuple=False).t()
-#             edge_index.append(edges + i * self.node_count)
-#         edge_index = torch.cat(edge_index, dim=1)
-#         batch = torch.arange(z.size(0)).repeat_interleave(self.node_count)
-#         data = Data(x=nodes, edge_index=edge_index, batch=batch, y=label).to(z.device)
-#         return data
-
 class GraphGenerator(nn.Module):
     def __init__(self, layers, node_count, condition_dim=10, batch_norm=True, temperature=1, threshold=0.02):
         super().__init__()
